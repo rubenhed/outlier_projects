@@ -1,0 +1,17 @@
+feature list:
+Interactive seating management interface
+Force-directed graph visualization
+Guest input system
+Custom relationship types
+Adjustable relationship strengths
+Automatic seating suggestions
+Manual seating option
+Preset saving and loading
+Guest seating display
+
+Responsive design with mobile support
+Dark mode option
+Guest preference input
+
+prompt1: 
+Create an interactive guest relationship tool for managing seating arrangements at events. It should include a force-directed graph to display guest connections. The user should be able to input guest names and define their relationship to other guests and oneself. Include a system for creating relationship types with adjustable strength values; this is used to automatically suggest seating.

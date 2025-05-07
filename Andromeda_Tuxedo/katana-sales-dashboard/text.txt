@@ -1,0 +1,15 @@
+
+// Zod Schema
+export const Schema = {
+  "commentary": "To create a dashboard for measuring sales from a store selling katanas, I will design a React component using Next.js and Tailwind CSS. This dashboard will display various sales metrics and trends. The chart is custom made, could also be done with a import like recharts.",
+  "template": null,
+  "title": "Katana Sales Dashboard",
+  "description": "A dashboard to display sales metrics for a katana store.",
+  "port": 3000,
+  "file_path": "pages/index.tsx",
+  "code": "<see code above>",
+  "install_dependencies_command": "npm i react-icons",
+  "additional_dependencies": [
+  ],
+  "has_additional_dependencies": false
+}

@@ -1,0 +1,14 @@
+features:
+heatmap of customers
+simulated mall
+simulated customers moving in mall
+
+timer for time passed
+graph for store activity over time
+
+Responsive design with modern colors
+analysis of layout efficiency based on customer traffic
+
+prompt1
+Make a customer heat map simulator. A shopping mall should also be simulated, where the customers can be tracked. Simulate customers moving inside the mall with the heat map.
+Use HTML, JS, and CSS.

@@ -1,0 +1,16 @@
+// Zod Schema
+export const Schema = {
+"commentary": "",
+"template": "nextjs-developer",
+"title": "Global City Skyscraper Dashboard",
+"description": "A dashboard to compare population density and wealth distribution across major cities.",
+"additional_dependencies": [
+"recharts",
+"shadcn/ui"
+],
+"has_additional_dependencies": true,
+"install_dependencies_command": "npm install recharts @shadcn/ui",
+"port": 3000,
+"file_path": "app/page.tsx",
+"code": "<see code above>"
+}

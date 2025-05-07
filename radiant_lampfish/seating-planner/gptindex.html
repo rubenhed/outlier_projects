@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Guest Relationship Tool</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 1rem;
+      padding: 1rem;
+    }
+    .panel {
+      background: #f9f9f9;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    input, select, button {
+      display: block;
+      margin: 0.5rem 0;
+      padding: 0.5rem;
+      width: 100%;
+    }
+    svg {
+      width: 100%;
+      height: 90vh;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="panel">
+    <h2>Add Guest</h2>
+    <input id="guest-name" placeholder="Guest Name"/>
+    <button onclick="addGuest()">Add Guest</button>
+
+    <h2>Define Relationship</h2>
+    <input id="guest-a" placeholder="Guest A"/>
+    <input id="guest-b" placeholder="Guest B"/>
+    <select id="rel-type"></select>
+    <button onclick="addRelationship()">Add Relationship</button>
+
+    <h2>Create Relationship Type</h2>
+    <input id="new-rel-type" placeholder="Type Name"/>
+    <input id="new-rel-strength" type="number" step="0.1" value="1"/>
+    <button onclick="addRelationshipType()">Add Type</button>
+  </div>
+
+  <div>
+    <svg id="graph"></svg>
+  </div>
+
+  <script>
+    const guests = new Set();
+    const links = [];
+    const relationshipTypes = [
+      { type: 'Friend', strength: 1 },
+      { type: 'Family', strength: 2 },
+      { type: 'Colleague', strength: 0.5 }
+    ];
+
+    const relTypeSelect = document.getElementById('rel-type');
+    const graphSvg = d3.select('#graph');
+    const width = graphSvg.node().getBoundingClientRect().width;
+    const height = graphSvg.node().getBoundingClientRect().height;
+
+    function updateRelTypeOptions() {
+      relTypeSelect.innerHTML = '';
+      relationshipTypes.forEach(rt => {
+        const option = document.createElement('option');
+        option.value = rt.type;
+        option.textContent = rt.type;
+        relTypeSelect.appendChild(option);
+      });
+    }
+
+    updateRelTypeOptions();
+
+    function addGuest() {
+      const name = document.getElementById('guest-name').value.trim();
+      if (name && !guests.has(name)) {
+        guests.add(name);
+        document.getElementById('guest-name').value = '';
+        renderGraph();
+      }
+    }
+
+    function addRelationship() {
+      const guestA = document.getElementById('guest-a').value.trim();
+      const guestB = document.getElementById('guest-b').value.trim();
+      const relType = document.getElementById('rel-type').value;
+
+      if (guestA && guestB && guestA !== guestB && guests.has(guestA) && guests.has(guestB)) {
+        const typeObj = relationshipTypes.find(rt => rt.type === relType);
+        links.push({ source: guestA, target: guestB, type: relType, strength: typeObj.strength });
+        renderGraph();
+      }
+    }
+
+    function addRelationshipType() {
+      const newType = document.getElementById('new-rel-type').value.trim();
+      const strength = parseFloat(document.getElementById('new-rel-strength').value);
+      if (newType && !relationshipTypes.some(rt => rt.type === newType)) {
+        relationshipTypes.push({ type: newType, strength });
+        updateRelTypeOptions();
+        document.getElementById('new-rel-type').value = '';
+        document.getElementById('new-rel-strength').value = 1;
+      }
+    }
+
+    function renderGraph() {
+      graphSvg.selectAll('*').remove();
+
+      const nodes = Array.from(guests).map(id => ({ id }));
+      const simulation = d3.forceSimulation(nodes)
+        .force('link', d3.forceLink(links).id(d => d.id).strength(d => d.strength))
+        .force('charge', d3.forceManyBody().strength(-200))
+        .force('center', d3.forceCenter(width / 2, height / 2));
+
+      const link = graphSvg.append('g')
+        .attr('stroke', '#aaa')
+        .selectAll('line')
+        .data(links)
+        .join('line')
+        .attr('stroke-width', d => d.strength * 2);
+
+      const node = graphSvg.append('g')
+        .attr('stroke', '#fff')
+        .attr('stroke-width', 1.5)
+        .selectAll('circle')
+        .data(nodes)
+        .join('circle')
+        .attr('r', 10)
+        .attr('fill', '#1f77b4')
+        .call(drag(simulation));
+
+      const label = graphSvg.append('g')
+        .selectAll('text')
+        .data(nodes)
+        .join('text')
+        .text(d => d.id)
+        .attr('font-size', 12)
+        .attr('dx', 12)
+        .attr('dy', 4);
+
+      simulation.on('tick', () => {
+        link
+          .attr('x1', d => d.source.x)
+          .attr('y1', d => d.source.y)
+          .attr('x2', d => d.target.x)
+          .attr('y2', d => d.target.y);
+
+        node
+          .attr('cx', d => d.x)
+          .attr('cy', d => d.y);
+
+        label
+          .attr('x', d => d.x)
+          .attr('y', d => d.y);
+      });
+    }
+
+    function drag(simulation) {
+      return d3.drag()
+        .on('start', event => {
+          if (!event.active) simulation.alphaTarget(0.3).restart();
+          event.subject.fx = event.subject.x;
+          event.subject.fy = event.subject.y;
+        })
+        .on('drag', event => {
+          event.subject.fx = event.x;
+          event.subject.fy = event.y;
+        })
+        .on('end', event => {
+          if (!event.active) simulation.alphaTarget(0);
+          event.subject.fx = null;
+          event.subject.fy = null;
+        });
+    }
+  </script>
+</body>
+</html>

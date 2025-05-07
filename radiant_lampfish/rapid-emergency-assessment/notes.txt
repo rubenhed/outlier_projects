@@ -1,0 +1,22 @@
+exp features:
+responsive design
+map implementation
+
+yes or no button for emergency questions
+emergency call button
+
+distance to emergency services
+
+user profile
+chat
+
+imp features:
+real life map support
+highlight emergency services on click
+highlight emergency service on map while hovering on the side bar
+
+prompt1:
+Make a responsive rapid assessment application for identifying life-threatening symptoms. Use yes or no questions for asking the user questions about their symptoms. Include a map with nearby emergency services. Have an emergency call button to call emergency services instantly.
+Use HTML, JavaScript and CSS.
+
+Added all critera information

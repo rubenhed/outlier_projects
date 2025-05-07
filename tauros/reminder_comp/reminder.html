@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reminders</title>
+  <style>
+    body {
+      background-color: #f9fafb;
+      font-family: system-ui, sans-serif;
+      padding: 24px;
+    }
+
+    .card {
+      max-width: 360px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      padding: 16px;
+      margin: auto;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .card-header h2 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .card-header::after {
+      content: "";
+      position: absolute;
+      left: -16px;
+      right: -16px;
+      bottom: -4px;
+      height: 1px;
+      background-color: rgba(221, 221, 221, 0.5);
+    }
+
+    .dots {
+      font-size: 20px;
+      color: #9ca3af;
+      cursor: pointer;
+    }
+
+    .reminder {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .reminder:last-child {
+      margin-bottom: 0;
+    }
+
+    .reminder-title {
+      font-weight: 500;
+      color: #111827;
+      margin: 0;
+    }
+
+    .reminder-time {
+      font-size: 14px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+
+    .badge {
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 8px;
+      border-radius: 16px;
+    }
+
+    .new-badge {
+      background-color: #F5DD40;
+      color: black;
+      margin-left: 8px;
+      padding: 0 4px 3px 4px;
+      border-radius: 4px;
+    }
+
+    .meeting-badge {
+      background-color: #dbeafe;
+      color: #355787;
+    }
+
+    .birthday-badge {
+      background-color: #fce7f3;
+      color: #8B5B76;
+    }
+
+    .deadline-badge {
+      background-color: #fee2e2;
+      color: #9C5D58;
+    }
+    
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="card-header">
+      <h2>Reminders</h2>
+      <div class="dots">⋯</div>
+    </div>
+
+    <div class="reminder">
+      <div>
+        <p class="reminder-title">WARE Brand Meeting</p>
+        <p class="reminder-time">Today — 11:45 am <span class="badge new-badge">new</span></p>
+      </div>
+      <span class="badge meeting-badge">📹 Meeting</span>
+    </div>
+
+    <div class="reminder">
+      <div>
+        <p class="reminder-title">Jacob Kowalski</p>
+        <p class="reminder-time">Today <span class="badge new-badge">new</span></p>
+      </div>
+      <span class="badge birthday-badge">🎂 Birthday</span>
+    </div>
+
+    <div class="reminder">
+      <div>
+        <p class="reminder-title">Contract Revision– updated IBAN</p>
+        <p class="reminder-time">Tomorrow — 2:30 pm</p>
+      </div>
+      <span class="badge deadline-badge">📄 Deadline</span>
+    </div>
+
+    <div class="reminder">
+      <div>
+        <p class="reminder-title">Design Talk</p>
+        <p class="reminder-time">in 4 days — 11:30 am</p>
+      </div>
+      <span class="badge meeting-badge">📹 Meeting</span>
+    </div>
+  </div>
+</body>
+</html>

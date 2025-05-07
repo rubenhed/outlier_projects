@@ -1,0 +1,1 @@
+Make a color palette chooser UI for a website. Return the full code solution using NextJS. The solution should be self-contained within a single TSX file. Use Tailwind to style.

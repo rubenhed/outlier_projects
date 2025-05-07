@@ -1,0 +1,16 @@
+// Zod Schema
+export const Schema = {
+"commentary": "",
+"template": "nextjs-developer",
+"title": "Headset Review Site",
+"description": "A review site for headsets where users can post comments and ratings.",
+"additional_dependencies": [
+"lucide-react",
+"motion"
+],
+"has_additional_dependencies": true,
+"install_dependencies_command": "npm install motion lucide-react",
+"port": 3000,
+"file_path": "app/page.tsx",
+"code": "<see code above>"
+}

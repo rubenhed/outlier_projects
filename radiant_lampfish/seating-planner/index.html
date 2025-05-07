@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guest Relationship Manager</title>
+    <style>
+        :root {
+            --bg-color: #f9f9f9;
+            --text-color: #333;
+            --border-color: #ccc;
+            --button-bg: #4CAF50;
+            --button-hover: #45a049;
+            --panel-bg: #fff;
+        }
+        body.dark-mode {
+            --bg-color: #333;
+            --text-color: #fff;
+            --border-color: #555;
+            --button-bg: #2E7D32;
+            --button-hover: #1B5E20;
+            --panel-bg: #424242;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .controls {
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background: var(--panel-bg);
+        }
+        .visualization {
+            width: 100%;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select, input, button {
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 5px;
+            border-radius: 3px;
+            border: 1px solid var(--border-color);
+            background: var(--panel-bg);
+            color: var(--text-color);
+        }
+        button {
+            background: var(--button-bg);
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: var(--button-hover);
+        }
+        #graph, #seatingArea {
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background: #f0f0f0;
+            width: 100%;
+            max-width: 100%;
+        }
+        .node {
+            cursor: pointer;
+        }
+        .link {
+            stroke: #999;
+            stroke-opacity: 0.6;
+        }
+        .table {
+            fill: #8B4513;
+            stroke: #5D2E0C;
+            stroke-width: 2;
+        }
+        .chair {
+            fill: #4682B4;
+            cursor: pointer;
+            transition: fill 0.2s;
+        }
+        .chair.occupied {
+            fill: #32CD32;
+        }
+        .chair:hover {
+            fill: #87CEEB;
+        }
+        .chair-label {
+            font-size: 12px;
+            text-anchor: middle;
+            fill: var(--text-color);
+        }
+        .seating-controls {
+            margin: 10px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        .mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        @media (max-width: 768px) {
+            .controls {
+                padding: 10px;
+            }
+            .form-group {
+                margin-bottom: 10px;
+            }
+            .seating-controls {
+                flex-direction: column;
+            }
+            .seating-controls select, 
+            .seating-controls input,
+            .seating-controls button {
+                width: 100%;
+            }
+            .chair-label {
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="mode-toggle" onclick="toggleDarkMode()">Toggle Dark Mode</button>
+    <div class="container">
+        <h1>Guest Relationship Manager</h1>
+        <div class="controls">
+            <div class="form-group">
+                <h3>Add Guest</h3>
+                <label for="guestName">Guest Name:</label>
+                <input type="text" id="guestName" placeholder="Enter guest name">
+                <label for="preferredWith">Prefer to Sit With (optional):</label>
+                <select id="preferredWith">
+                    <option value="">None</option>
+                </select>
+                <button onclick="addGuest()">Add Guest</button>
+            </div>
+            
+            <div class="form-group">
+                <h3>Add Relationship</h3>
+                <label for="guest1">Guest 1:</label>
+                <select id="guest1"></select>
+                <label for="guest2">Guest 2:</label>
+                <select id="guest2"></select>
+                <label for="relationshipType">Relationship Type:</label>
+                <select id="relationshipType">
+                    <option value="friend">Friend (0.8)</option>
+                    <option value="family">Family (1.0)</option>
+                    <option value="acquaintance">Acquaintance (0.4)</option>
+                    <option value="avoid">Avoid (-0.5)</option>
+                </select>
+                <button onclick="addRelationship()">Add Relationship</button>
+            </div>
+            
+            <div class="form-group">
+                <h3>Presets</h3>
+                <button onclick="savePreset()">Save Preset</button>
+                <button onclick="loadPreset()">Load Preset</button>
+            </div>
+        </div>
+        
+        <div class="visualization">
+            <svg id="graph" height="300"></svg>
+            <div class="seating-controls">
+                <button onclick="generateSeating()">Auto-Generate Seating</button>
+                <label for="tableSize">Max Table Size:</label>
+                <input type="number" id="tableSize" value="6" min="2" style="width: 60px;">
+                <label for="manualGuest">Assign Guest:</label>
+                <select id="manualGuest"></select>
+                <button onclick="clearSeating()">Clear Seating</button>
+            </div>
+            <svg id="seatingArea" height="400"></svg>
+        </div>
+    </div>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+        // Data structures
+        let guests = [{ id: "host", name: "Host (You)", preferredWith: null }];
+        let relationships = [];
+        let tables = [];
+        
+        // Relationship strengths
+        const relationshipStrengths = {
+            family: 1.0,
+            friend: 0.8,
+            acquaintance: 0.4,
+            avoid: -0.5
+        };
+
+        // Graph Setup
+        const graphSvg = d3.select("#graph")
+            .attr("height", 300);
+            
+        const graphSimulation = d3.forceSimulation()
+            .force("link", d3.forceLink().id(d => d.id).distance(d => 100 / (Math.abs(d.value) || 1)))
+            .force("charge", d3.forceManyBody().strength(-100))
+            .force("center", d3.forceCenter());
+            
+        let link = graphSvg.append("g").selectAll("line");
+        let node = graphSvg.append("g").selectAll("circle");
+        let label = graphSvg.append("g").selectAll("text");
+
+        // Seating Setup
+        const seatingSvg = d3.select("#seatingArea")
+            .attr("height", 400);
+
+        // Responsive sizing
+        function updateSizes() {
+            const width = Math.min(window.innerWidth - 40, 800);
+            graphSvg.attr("width", width);
+            seatingSvg.attr("width", width);
+            graphSimulation.force("center").x(width / 2).y(150);
+            graphSimulation.alpha(1).restart();
+        }
+        window.addEventListener("resize", updateSizes);
+        updateSizes();
+
+        // Functions
+        function updateGuestDropdowns() {
+            const guestOptions = guests.map(guest => 
+                `<option value="${guest.id}">${guest.name}</option>`
+            ).join('');
+            
+            d3.select("#guest1").html(guestOptions);
+            d3.select("#guest2").html(guestOptions);
+            d3.select("#manualGuest").html(guestOptions);
+            d3.select("#preferredWith").html(`<option value="">None</option>${guestOptions}`);
+        }
+
+        function addGuest() {
+            const name = d3.select("#guestName").property("value").trim();
+            const preferredWith = d3.select("#preferredWith").property("value") || null;
+            if (name && !guests.some(g => g.name === name)) {
+                const id = `guest_${guests.length}`;
+                guests.push({ id, name, preferredWith });
+                updateGuestDropdowns();
+                d3.select("#guestName").property("value", "");
+                updateGraph();
+                updateSeating();
+            }
+        }
+
+        function addRelationship() {
+            const guest1 = d3.select("#guest1").property("value");
+            const guest2 = d3.select("#guest2").property("value");
+            const type = d3.select("#relationshipType").property("value");
+            
+            if (guest1 !== guest2 && !relationships.some(r => 
+                (r.source === guest1 && r.target === guest2) || 
+                (r.source === guest2 && r.target === guest1))) {
+                
+                relationships.push({
+                    source: guest1,
+                    target: guest2,
+                    type: type,
+                    value: relationshipStrengths[type]
+                });
+                updateGraph();
+            }
+        }
+
+        function updateGraph() {
+            link = link.data(relationships);
+            link.exit().remove();
+            link = link.enter().append("line")
+                .attr("class", "link")
+                .attr("stroke", d => d.value < 0 ? "#ff0000" : "#999")
+                .merge(link);
+
+            node = node.data(guests);
+            node.exit().remove();
+            node = node.enter().append("circle")
+                .attr("class", "node")
+                .attr("r", 10)
+                .attr("fill", d => d.id === "host" ? "#ff9900" : "#1f77b4")
+                .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended))
+                .merge(node);
+
+            label = label.data(guests);
+            label.exit().remove();
+            label = label.enter().append("text")
+                .attr("dx", 12)
+                .attr("dy", ".35em")
+                .text(d => d.name)
+                .merge(label);
+
+            graphSimulation
+                .nodes(guests)
+                .on("tick", graphTicked);
+
+            graphSimulation.force("link")
+                .links(relationships);
+
+            graphSimulation.alpha(1).restart();
+        }
+
+        function graphTicked() {
+            link
+                .attr("x1", d => Math.max(10, Math.min(graphSvg.attr("width") - 10, d.source.x)))
+                .attr("y1", d => Math.max(10, Math.min(290, d.source.y)))
+                .attr("x2", d => Math.max(10, Math.min(graphSvg.attr("width") - 10, d.target.x)))
+                .attr("y2", d => Math.max(10, Math.min(290, d.target.y)));
+
+            node
+                .attr("cx", d => Math.max(10, Math.min(graphSvg.attr("width") - 10, d.x)))
+                .attr("cy", d => Math.max(10, Math.min(290, d.y)));
+
+            label
+                .attr("x", d => Math.max(10, Math.min(graphSvg.attr("width") - 10, d.x)))
+                .attr("y", d => Math.max(10, Math.min(290, d.y)));
+        }
+
+        function dragstarted(event, d) {
+            if (!event.active) graphSimulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+
+        function dragended(event, d) {
+            if (!event.active) graphSimulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+
+        function updateSeating() {
+            seatingSvg.selectAll("*").remove();
+            const width = parseInt(seatingSvg.attr("width"));
+            const tableSize = parseInt(d3.select("#tableSize").property("value"));
+            
+            const tableWidth = Math.min(100, width / 3 - 40);
+            const tableHeight = 60;
+            const chairSize = Math.min(30, tableWidth / 4);
+            const padding = Math.min(50, width / 10);
+            const tablesPerRow = Math.floor(width / (tableWidth + padding));
+            
+            tables.forEach((table, i) => {
+                const x = (i % tablesPerRow) * (tableWidth + padding) + padding;
+                const y = Math.floor(i / tablesPerRow) * (tableHeight + padding * 2) + padding;
+                
+                // Draw table
+                seatingSvg.append("rect")
+                    .attr("class", "table")
+                    .attr("x", x)
+                    .attr("y", y)
+                    .attr("width", tableWidth)
+                    .attr("height", tableHeight)
+                    .attr("rx", 10);
+                
+                // Draw chairs
+                const seats = table.seats || [];
+                const seatsPerSide = Math.ceil(tableSize / 2);
+                
+                // Top row
+                for (let j = 0; j < seatsPerSide; j++) {
+                    const chairX = x + (tableWidth / (seatsPerSide + 1)) * (j + 1) - chairSize/2;
+                    const chairY = y - chairSize - 5;
+                    
+                    const chair = seatingSvg.append("rect")
+                        .attr("class", "chair")
+                        .attr("x", chairX)
+                        .attr("y", chairY)
+                        .attr("width", chairSize)
+                        .attr("height", chairSize)
+                        .attr("rx", 5)
+                        .datum({ table: i, position: j });
+                    
+                    const guest = seats[j];
+                    if (guest) {
+                        chair.classed("occupied", true);
+                        seatingSvg.append("text")
+                            .attr("class", "chair-label")
+                            .attr("x", chairX + chairSize/2)
+                            .attr("y", chairY + chairSize/2 + 5)
+                            .text(guest.name);
+                    }
+                    chair.on("click", assignSeat);
+                }
+                
+                // Bottom row
+                for (let j = 0; j < seatsPerSide; j++) {
+                    const chairX = x + (tableWidth / (seatsPerSide + 1)) * (j + 1) - chairSize/2;
+                    const chairY = y + tableHeight + 5;
+                    
+                    const chair = seatingSvg.append("rect")
+                        .attr("class", "chair")
+                        .attr("x", chairX)
+                        .attr("y", chairY)
+                        .attr("width", chairSize)
+                        .attr("height", chairSize)
+                        .attr("rx", 5)
+                        .datum({ table: i, position: j + seatsPerSide });
+                    
+                    const guest = seats[j + seatsPerSide];
+                    if (guest) {
+                        chair.classed("occupied", true);
+                        seatingSvg.append("text")
+                            .attr("class", "chair-label")
+                            .attr("x", chairX + chairSize/2)
+                            .attr("y", chairY + chairSize/2 + 5)
+                            .text(guest.name);
+                    }
+                    chair.on("click", assignSeat);
+                }
+            });
+        }
+
+        function assignSeat(event, d) {
+            const guestId = d3.select("#manualGuest").property("value");
+            const guest = guests.find(g => g.id === guestId);
+            if (!tables[d.table]) tables[d.table] = { seats: [] };
+            
+            // Remove guest from any existing seat
+            tables.forEach(table => {
+                table.seats = table.seats.filter(g => g?.id !== guestId);
+            });
+            
+            // Add guest to new seat
+            tables[d.table].seats[d.position] = guest;
+            updateSeating();
+        }
+
+        function generateSeating() {
+            const tableSize = parseInt(d3.select("#tableSize").property("value"));
+            tables = [];
+            let unassigned = [...guests];
+            
+            // Start with host and their preferences
+            const host = unassigned.find(g => g.id === "host");
+            tables.push({ seats: [host] });
+            unassigned = unassigned.filter(g => g.id !== "host");
+
+            // Try to honor preferences first
+            guests.filter(g => g.preferredWith).forEach(guest => {
+                if (unassigned.some(u => u.id === guest.id)) {
+                    const preferredGuest = guests.find(g2 => g2.id === guest.preferredWith);
+                    if (preferredGuest) {
+                        const tableWithPreferred = tables.find(t => 
+                            t.seats.some(s => s.id === preferredGuest.id) && 
+                            t.seats.length < tableSize
+                        );
+                        if (tableWithPreferred) {
+                            tableWithPreferred.seats.push(guest);
+                            unassigned = unassigned.filter(g => g.id !== guest.id);
+                        }
+                    }
+                }
+            });
+
+            // Fill remaining seats
+            while (unassigned.length > 0) {
+                const currentTable = tables[tables.length - 1];
+                
+                if (currentTable.seats.length >= tableSize) {
+                    tables.push({ seats: [] });
+                    continue;
+                }
+
+                const scores = unassigned.map(guest => {
+                    let score = 0;
+                    currentTable.seats.forEach(tableGuest => {
+                        const rel = relationships.find(r => 
+                            (r.source === guest.id && r.target === tableGuest.id) ||
+                            (r.source === tableGuest.id && r.target === guest.id)
+                        );
+                        score += rel ? rel.value : 0;
+                    });
+                    return { guest, score: score / currentTable.seats.length };
+                });
+
+                scores.sort((a, b) => b.score - a.score);
+                if (scores.length > 0) {
+                    const bestMatch = scores[0].guest;
+                    currentTable.seats.push(bestMatch);
+                    unassigned = unassigned.filter(g => g.id !== bestMatch.id);
+                }
+            }
+            updateSeating();
+        }
+
+        function clearSeating() {
+            tables = [];
+            updateSeating();
+        }
+
+        function savePreset() {
+            const preset = {
+                guests: guests,
+                relationships: relationships,
+                tables: tables
+            };
+            localStorage.setItem("seatingPreset", JSON.stringify(preset));
+            alert("Preset saved!");
+        }
+
+        function loadPreset() {
+            const preset = localStorage.getItem("seatingPreset");
+            if (preset) {
+                const data = JSON.parse(preset);
+                guests = data.guests;
+                relationships = data.relationships;
+                tables = data.tables;
+                updateGuestDropdowns();
+                updateGraph();
+                updateSeating();
+                alert("Preset loaded!");
+            } else {
+                alert("No preset found!");
+            }
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+        }
+
+        // Initial setup
+        updateGuestDropdowns();
+        updateGraph();
+        updateSeating();
+    </script>
+</body>
+</html>

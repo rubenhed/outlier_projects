@@ -1,0 +1,16 @@
+// Zod Schema
+export const Schema = {
+"commentary": "",
+"template": "nextjs-developer",
+"title": "Search Engine Data Visualization",
+"description": "A search engine data visualization showing the most Googled search words.",
+"additional_dependencies": [
+" motion",
+"recharts"
+],
+"has_additional_dependencies": true,
+"install_dependencies_command": "npm install motion recharts",
+"port": 3000,
+"file_path": "app/page.tsx",
+"code": "<see code above>"
+}

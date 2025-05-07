@@ -1,0 +1,1 @@
+Make a code manager tool UI for a website. You should be able to add what you want to code, and the steps to get there. Return the full code solution using NextJS. The solution should be self-contained within a single TSX file.

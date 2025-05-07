@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Customer Heat Map Simulator</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      margin: 1rem;
+    }
+    #mall {
+      display: grid;
+      grid-template-columns: repeat(30, 20px);
+      grid-template-rows: repeat(20, 20px);
+      gap: 1px;
+      background-color: #ccc;
+    }
+    .cell {
+      width: 20px;
+      height: 20px;
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <h1>Shopping Mall Heat Map</h1>
+  <div id="mall"></div>
+
+  <script>
+    const rows = 20;
+    const cols = 30;
+    const mall = document.getElementById("mall");
+    const heatmap = Array.from({ length: rows }, () => Array(cols).fill(0));
+    const cells = [];
+
+    // Create grid
+    for (let y = 0; y < rows; y++) {
+      cells[y] = [];
+      for (let x = 0; x < cols; x++) {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        mall.appendChild(cell);
+        cells[y][x] = cell;
+      }
+    }
+
+    // Customers
+    const customers = Array.from({ length: 20 }, () => ({
+      x: Math.floor(Math.random() * cols),
+      y: Math.floor(Math.random() * rows)
+    }));
+
+    function updateHeatmap() {
+      customers.forEach((c) => {
+        heatmap[c.y][c.x]++;
+        // Move randomly
+        const dx = Math.floor(Math.random() * 3) - 1; // -1, 0, 1
+        const dy = Math.floor(Math.random() * 3) - 1;
+        c.x = Math.max(0, Math.min(cols - 1, c.x + dx));
+        c.y = Math.max(0, Math.min(rows - 1, c.y + dy));
+      });
+    }
+
+    function draw() {
+      for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+          const intensity = Math.min(heatmap[y][x] / 20, 1);
+          const red = Math.floor(255 * intensity);
+          const green = 255 - red;
+          cells[y][x].style.backgroundColor = `rgba(${red},${green},0,${intensity})`;
+        }
+      }
+    }
+
+    function loop() {
+      updateHeatmap();
+      draw();
+      requestAnimationFrame(loop);
+    }
+
+    loop();
+  </script>
+</body>
+</html>

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workspace Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #e6ecef;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .modal {
+      background-color: white;
+      width: 450px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 10px 20px;
+      position: relative;
+    }
+
+    .modal-header {
+      display: flex;
+      position: relative;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+
+    .modal-header::after {
+      content: "";
+      position: absolute;
+      left: -20px; /* adjust as needed */
+      right: -20px;
+      bottom: 0;
+      height: 1px;
+      background-color: #e6ecef;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      font-weight: lighter;
+      color: #666;
+      font-family: 'Segoe UI';
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+
+    .section h3 {
+      font-size: 16px;
+      font-weight: 500;
+      color: black;
+      margin-bottom: 10px;
+      margin-top: 0px;
+    }
+
+    .input-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 12px 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    button {
+      padding: 12px 16px;
+      border: none;
+      border-radius: 2px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .continue-btn {
+      background-color: #0E1218;
+      font-weight: 500;
+      color: white;
+    }
+
+    .continue-btn:hover {
+      background-color: #555;
+    }
+
+    .help-links {
+      font-size: 11px;
+      color: #262726a8;
+    }
+
+    .help-links a {
+      color: #2d533c;
+      text-decoration: none;
+      margin-bottom: 5px;
+    }
+
+    .invitation, .workspace {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 4px 0;
+    }
+
+    .invitation img, .workspace img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #ccc;
+    }
+
+    .invitation-details, .workspace-details {
+      flex: 1;
+    }
+
+    .invitation-details h4, .workspace-details h4 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .invitation-details p, .workspace-details p {
+      margin: 0;
+      font-size: 12px;
+    }
+
+    .join-btn {
+      background-color: #0E1218;
+      color: white;
+      font-weight: 500;
+    }
+
+    .join-btn:hover {
+      background-color: #555;
+    }
+
+    .open-btn {
+      background-color: #f0f0f0;
+      color: black;
+      font-weight: 500;
+    }
+
+    .open-btn:hover {
+      background-color: #e0e0e0;
+    }
+
+    .bg-blue {
+      background-color: #EDF3FA;
+      padding: 20px 14px;
+    }
+
+    .bg-blue p {
+      color: #262726a8;;
+    }
+
+    .rounding-shadow {
+      box-shadow: 0 0 2px rgba(0, 0, 0, 0.15);
+      padding: 8px;
+    }
+
+    p {
+      font-size: 11px;
+      color: #666;
+    }
+
+    .border-mid {
+      width: 100%;
+      height: 1px;
+      background-color: rgba(0, 0, 0, 0.07);
+      margin: 10px 0;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Add a workspace</h2>
+      <button class="close-btn" onclick="closeModal()">×</button>
+    </div>
+    <div class="section bg-blue">
+      <h3>Find your workspace</h3>
+      <p>Enter the Nook URL for your workspace</p>
+      <div class="input-group">
+        <input type="text" value="nestorhomes.nook.com" placeholder="Enter URL">
+        <button class="continue-btn" onclick="continueWorkspace()">Continue</button>
+      </div>
+      <div class="help-links">
+        <div style="margin-bottom: 8px;">
+          <span>Need help to find your workspace? </span><a href="#">See the Find your workspace article</a>
+        </div>
+        <span>Want to create your workspace instead? </span><a href="#">See the Workspace creation article</a>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Pending invitations for quinn.wilson@gmail.com</h3>
+      <div class="rounding-shadow">
+        <div class="invitation">
+          <img src="https://via.placeholder.com/40" alt="Workspace Icon">
+          <div class="invitation-details">
+            <h4>AlterHome</h4>
+            <p>Invited by Fynn Neumann (fynn@alterhome.com) · </p>
+          </div>
+          <button class="join-btn" onclick="joinWorkspace('AlterHome')">Join</button>
+        </div>
+        <p style="margin-bottom: 0px;">12 members</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>You are already connected to...</h3>
+      <div class="rounding-shadow">
+        <div class="workspace">
+          <img src="https://via.placeholder.com/40" alt="Workspace Icon">
+          <div class="workspace-details">
+            <h4>Kliper Agency</h4>
+            <p>wearekliper.nook.com</p>
+          </div>
+          <button class="open-btn" onclick="openWorkspace('Kliper Agency')">Open</button>
+        </div>
+        <div class="border-mid"></div>
+        <div class="workspace">
+          <img src="https://via.placeholder.com/40" alt="Workspace Icon">
+          <div class="workspace-details">
+            <h4>Glencove-Emerson</h4>
+            <p>glencoveemerson.nook.com</p>
+          </div>
+          <button class="open-btn" onclick="openWorkspace('Glencove-Emerson')">Open</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function closeModal() {
+      alert("Modal closed!");
+      // In a real app, this would hide the modal (e.g., by setting display: none)
+    }
+
+    function continueWorkspace() {
+      const url = document.querySelector('input[type="text"]').value;
+      alert(`Continuing with workspace URL: ${url}`);
+      // In a real app, this would validate the URL and proceed
+    }
+
+    function joinWorkspace(workspace) {
+      alert(`Joining workspace: ${workspace}`);
+      // In a real app, this would trigger an API call to join the workspace
+    }
+
+    function openWorkspace(workspace) {
+      alert(`Opening workspace: ${workspace}`);
+      // In a real app, this would navigate to the workspace
+    }
+  </script>
+</body>
+</html>

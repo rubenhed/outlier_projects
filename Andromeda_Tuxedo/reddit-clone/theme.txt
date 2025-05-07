@@ -1,0 +1,16 @@
+
+// Zod Schema
+export const Schema = {
+"commentary": "I will create a Reddit clone using Next.js with TypeScript and Tailwind. The navigation bar will include the logo, search field, and user avatar. The left sidebar will include resource buttons and recently visited subreddits. The main content will include users' posts, such as username, post date, post title, and post content.",
+"template": null,
+"title": "Reddit Clone",
+"description": "A fully functional Reddit clone with user posts and subreddit features.",
+"port": 3000,
+"file_path": "pages/index.tsx",
+"code": "<see code above>",
+"install_dependencies_command": "npm i react-icons",
+"additional_dependencies": [
+"react-icons"
+],
+"has_additional_dependencies": true
+}

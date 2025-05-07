@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Near-Earth Asteroid Visualizer</title>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-900 text-white font-sans">
+  <div class="flex flex-col md:flex-row h-screen">
+    <div class="md:w-2/3 w-full h-1/2 md:h-full" id="scene-container"></div>
+    <div class="md:w-1/3 w-full h-1/2 md:h-full overflow-y-auto p-4">
+      <h1 class="text-xl font-bold mb-4">Asteroid Search</h1>
+      <input type="text" id="search-input" placeholder="Search by size or closeness..."
+        class="w-full p-2 mb-4 text-black rounded" />
+      <div id="asteroid-list" class="space-y-4"></div>
+    </div>
+  </div>
+
+  <script>
+    // 3D Scene Setup
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth * 2 / 3 / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth * 2 / 3, window.innerHeight);
+    document.getElementById('scene-container').appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    camera.position.z = 20;
+
+    // Earth
+    const earthGeometry = new THREE.SphereGeometry(2, 32, 32);
+    const earthMaterial = new THREE.MeshBasicMaterial({ color: 0x00aaff, wireframe: true });
+    const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+    scene.add(earth);
+
+    // Dummy asteroid data
+    const asteroids = [
+      { name: "Ast-1001", size: 500, distance: 10, velocity: 25 },
+      { name: "Ast-2042", size: 200, distance: 7, velocity: 12 },
+      { name: "Ast-3095", size: 1200, distance: 15, velocity: 40 },
+      { name: "Ast-9944", size: 800, distance: 5, velocity: 32 },
+    ];
+
+    // Visualize asteroids
+    const asteroidMeshes = asteroids.map(asteroid => {
+      const geo = new THREE.SphereGeometry(asteroid.size / 1000, 16, 16);
+      const mat = new THREE.MeshBasicMaterial({ color: 0xff5555 });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(Math.random() * asteroid.distance, Math.random() * asteroid.distance, Math.random() * asteroid.distance);
+      scene.add(mesh);
+      return { asteroid, mesh };
+    });
+
+    // Render loop
+    function animate() {
+      requestAnimationFrame(animate);
+      earth.rotation.y += 0.001;
+      asteroidMeshes.forEach(obj => obj.mesh.rotation.y += 0.002);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // Populate asteroid list
+    const listContainer = document.getElementById('asteroid-list');
+    function displayAsteroids(data) {
+      listContainer.innerHTML = '';
+      data.forEach(ast => {
+        const div = document.createElement('div');
+        div.className = 'bg-gray-800 p-4 rounded';
+        div.innerHTML = `<h2 class="font-bold text-lg">${ast.name}</h2>
+          <p>Size: ${ast.size} m</p>
+          <p>Distance: ${ast.distance} Mkm</p>
+          <p>Velocity: ${ast.velocity} km/s</p>`;
+        listContainer.appendChild(div);
+      });
+    }
+
+    displayAsteroids(asteroids);
+
+    // Search functionality
+    document.getElementById('search-input').addEventListener('input', function (e) {
+      const query = e.target.value.toLowerCase();
+      const filtered = asteroids.filter(ast => {
+        return ast.name.toLowerCase().includes(query) ||
+          ast.size.toString().includes(query) ||
+          ast.distance.toString().includes(query);
+      });
+      displayAsteroids(filtered);
+    });
+  </script>
+</body>
+
+</html>

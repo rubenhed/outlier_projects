@@ -1,0 +1,22 @@
+// Zod Schema
+export const Schema = {
+    "commentary": "This is a minimalist e-commerce website for selling wallets. The website showcases different wallet designs, their prices, and allows users to add them to their cart. The website also includes a sorting feature for filtering wallets based on price and rating.",
+    "template": "nextjs-developer",
+    "title": "Wallet Store",
+    "description": "A minimalist e-commerce website for selling wallets.",
+    "additional_dependencies": [
+        "framer-motion",
+        "lucide-react"
+    ],
+    "has_additional_dependencies": true,
+    "install_dependencies_command": "npm install framer-motion lucide-react",
+    "port": 3000,
+    "file_path": "pages/index.tsx",
+    "code": "<see code above>"
+}
+
+
+added useEffect
+made color select work
+made filter apply properly
+tested buttons

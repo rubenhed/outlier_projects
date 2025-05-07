@@ -1,0 +1,16 @@
+// Zod Schema
+export const Schema = {
+  "commentary": "This is a React component for an ecommerce site that sells IT solutions to companies.",
+  "template": "nextjs-developer",
+  "title": "IT Solutions",
+  "description": "Ecommerce site for IT solutions",
+  "additional_dependencies": [
+    "motion",
+    "react-icons"
+  ],
+  "has_additional_dependencies": true,
+  "install_dependencies_command": "npm install motion react-icons",
+  "port": 3000,
+  "file_path": "pages/index.tsx",
+  "code": "<see code above>"
+}
