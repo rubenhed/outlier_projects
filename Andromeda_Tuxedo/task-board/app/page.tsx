@@ -33,7 +33,7 @@ const initialTasks: Task[] = [
 
 export default function TaskDrift() {
   // State to manage dark mode
-  const [darkMode, setDarkMode] = useState(typeof window !== "undefined" && localStorage.getItem("darkMode") === "true");
+  const [darkMode, setDarkMode] = useState<boolean>(typeof window !== "undefined" && localStorage.getItem("darkMode") === "true");
 
   // Effect to save the dark mode preference in local storage
   useEffect(() => {
