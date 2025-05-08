@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Head from 'next/head';
 import dayjs, { Dayjs } from 'dayjs';
 import {
   DndContext,
@@ -18,8 +17,14 @@ import {
   DragOverlay,
 } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import { FiEdit2, FiTrash2, FiCalendar, FiGithub, FiTwitter, FiLinkedin, FiInstagram } from 'react-icons/fi';
+import { FiEdit2, FiTrash2, FiCalendar, FiGithub, FiTwitter, FiLinkedin, FiInstagram, FiSun, FiMoon } from 'react-icons/fi';
 import toast, { Toaster } from 'react-hot-toast';
+import { Inter } from 'next/font/google';
+
+const inter = Inter({
+  weight: '400',
+  subsets: ['latin'],
+})
 
 interface CalendarEvent {
   id: string;
@@ -303,6 +308,7 @@ export default function CalendarPage() {
   const [newPersonInput, setNewPersonInput] = useState('');
   const [isMobile, setIsMobile] = useState(false);
   const [viewingEvent, setViewingEvent] = useState<CalendarEvent | null>(null);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   const displayedDay = currentDate;
   const displayedWeek = Array.from({ length: 7 }, (_, i) =>
@@ -621,14 +627,16 @@ export default function CalendarPage() {
     setViewingEvent(null);
   };
 
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
   return (
-    <>
-      <Head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap"
-          rel="stylesheet"
-        />
-      </Head>
+    <main className={inter.className}>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -640,6 +648,14 @@ export default function CalendarPage() {
         <div className="min-h-screen flex flex-col font-inter bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
           <header className="bg-white dark:bg-gray-800 py-3 px-4 sm:px-6 border-b border-gray-100 dark:border-gray-700">
             <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <button
+                onClick={() => setIsDarkMode((prev) => !prev)}
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                aria-label={isDarkMode ? 'Light mode' : 'Dark mode'}
+              >
+                {isDarkMode ? <FiSun size={20} /> : <FiMoon size={20} />}
+              </button>
+
               <div className="flex items-center space-x-2">
                 <div className="bg-teal-500 text-white p-2 rounded-lg">
                   <FiCalendar size={20} />
@@ -1133,18 +1149,7 @@ export default function CalendarPage() {
           ) : null}
         </DragOverlay>
       </DndContext>
-      <style jsx>{`
-        :global(html) {
-          font-family: 'Inter', 'Roboto', sans-serif;
-        }
-        .calendar-scrollbar-hide {
-          scrollbar-width: none; /* Firefox */
-          -ms-overflow-style: none; /* IE 10+ */
-        }
-        .calendar-scrollbar-hide::-webkit-scrollbar {
-          display: none; /* Safari and Chrome */
-        }
-      `}</style>
-    </>
+    </main>
+    
   );
 }
